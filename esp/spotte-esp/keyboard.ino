@@ -3,7 +3,7 @@
 #define PREV_BTN_PIN 10
 #define NEXT_BTN_PIN 2
 
-KeyboardState pressedButton = KB_NONE;
+KeyboardState pressedButton = KeyboardState::None;
 
 void initKeyboard() {
   pinMode(PLAY_BTN_PIN, INPUT);
@@ -14,13 +14,13 @@ void initKeyboard() {
 
 bool getButtonState(KeyboardState id) {
   switch (id) {
-    case KB_PLAY:
+    case KeyboardState::Play:
       return digitalRead(PLAY_BTN_PIN) == HIGH;
-    case KB_LIKE:
+    case KeyboardState::Like:
       return digitalRead(LIKE_BTN_PIN) == HIGH;
-    case KB_PREV:
+    case KeyboardState::Prev:
       return digitalRead(PREV_BTN_PIN) == HIGH;
-    case KB_NEXT:
+    case KeyboardState::Next:
       return digitalRead(NEXT_BTN_PIN) == HIGH;
     default:
       return false;
@@ -29,24 +29,24 @@ bool getButtonState(KeyboardState id) {
 
 KeyboardState getKeyboardState() {
   if (digitalRead(PLAY_BTN_PIN)) {
-    return KB_PLAY;
+    return KeyboardState::Play;
   }
   if (digitalRead(LIKE_BTN_PIN)) {
-    return KB_LIKE;
+    return KeyboardState::Like;
   }
   if (digitalRead(PREV_BTN_PIN)) {
-    return KB_PREV;
+    return KeyboardState::Prev;
   }
   if (digitalRead(NEXT_BTN_PIN)) {
-    return KB_NEXT;
+    return KeyboardState::Next;
   }
-  return KB_NONE;
+  return KeyboardState::None;
 }
 
 void processKeyboard() {
-  if (pressedButton == KB_NONE) {
+  if (pressedButton == KeyboardState::None) {
     pressedButton = getKeyboardState();
   } else if (!getButtonState(pressedButton)) {
-    pressedButton = KB_NONE;
+    pressedButton = KeyboardState::None;
   }
 }

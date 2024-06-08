@@ -37,7 +37,7 @@ void handleSubmitRequest() {
   html += "<body><p>Configuration saved. Check the screen of the Spotte device to see new instructions.</p></body></html>";
   server.send(200, "text/html", html);
   saveConfigToStorage(server.arg("ssid"), server.arg("pass"), server.arg("auth"));
-  switchState(DS_SETUP_COMPLETE);
+  switchState(DeviceState::SetupComplete);
 }
 
 void processApClients() {

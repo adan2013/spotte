@@ -48,6 +48,6 @@ void initScreen() {
   Wire.begin(SDA_PIN, SCL_PIN);
   delay(250);
   display.begin(SCREEN_ADDRESS, true);
-  switchState(DS_INIT);
+  switchState(DeviceState::Init);
   delay(1000);
 }

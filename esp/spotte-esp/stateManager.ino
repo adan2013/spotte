@@ -1,12 +1,12 @@
-DeviceState state = DS_INIT;
+DeviceState state = DeviceState::Init;
 
 void renderDisplay() {
   display.clearDisplay();
   switch (state) {
-    case DS_INIT:
+    case DeviceState::Init:
       drawLogotype();
       break;
-    case DS_SETUP:
+    case DeviceState::Setup:
       printToCenter(display.width() / 2, 0, "SETUP MODE");
       printToLeft(0, 12, "Connect to the Wi-Fi");
       printToLeft(0, 22, "network and configure");
@@ -14,13 +14,13 @@ void renderDisplay() {
       printToLeft(0, 45, "SSID: Spotte");
       printToLeft(0, 55, "URL: 192.168.10.1:80");
       break;
-    case DS_SETUP_COMPLETE:
+    case DeviceState::SetupComplete:
       printToCenter(display.width() / 2, 0, "SETUP MODE");
       printToLeft(0, 25, "Setup completed.");
       printToLeft(0, 35, "Press \"Play\" button");
       printToLeft(0, 45, "to restart the device");
       break;
-    case DS_CONNECTING:
+    case DeviceState::ConnectingWiFi:
       drawLogotype("Connecting to Wi-Fi");
       break;
   }
@@ -31,9 +31,9 @@ void switchState(DeviceState newState) {
   state = newState;
   renderDisplay();
   switch (state) {
-    case DS_SETUP:
+    case DeviceState::Setup:
       turnOnAccessPoint();
-    case DS_CONNECTING:
+    case DeviceState::ConnectingWiFi:
       // connect to wifi
       break;
   }

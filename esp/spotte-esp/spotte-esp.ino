@@ -8,19 +8,19 @@
 #include <WebServer.h>
 #include <uri/UriGlob.h>
 
-enum KeyboardState {
-  KB_NONE = 0,
-  KB_PLAY = 1,
-  KB_LIKE = 2,
-  KB_PREV = 3,
-  KB_NEXT = 4
+enum class KeyboardState {
+  None = 0,
+  Play = 1,
+  Like = 2,
+  Prev = 3,
+  Next = 4
 };
 
-enum DeviceState {
-  DS_INIT,
-  DS_SETUP,
-  DS_SETUP_COMPLETE,
-  DS_CONNECTING,
+enum class DeviceState {
+  Init,
+  Setup,
+  SetupComplete,
+  ConnectingWiFi,
 };
 
 void setup() {

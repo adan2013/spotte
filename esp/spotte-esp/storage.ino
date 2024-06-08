@@ -20,9 +20,9 @@ void loadConfigFromStorage() {
   openStorage();
   storage.getBytes("config", &config, sizeof(config));
   if (config.configured) {
-    switchState(DS_CONNECTING);
+    switchState(DeviceState::ConnectingWiFi);
   } else {
-    switchState(DS_SETUP);
+    switchState(DeviceState::Setup);
   }
   closeStorage();
 }
