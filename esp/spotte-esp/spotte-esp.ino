@@ -23,6 +23,8 @@ enum class DeviceState {
   ConnectingWiFi,
 };
 
+DeviceState state = DeviceState::Init;
+
 void setup() {
   Serial.begin(9600);
   initKeyboard();

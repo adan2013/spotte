@@ -1,5 +1,3 @@
-DeviceState state = DeviceState::Init;
-
 void renderDisplay() {
   display.clearDisplay();
   switch (state) {

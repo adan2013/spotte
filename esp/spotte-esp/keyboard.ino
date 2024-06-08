@@ -3,13 +3,21 @@
 #define PREV_BTN_PIN 10
 #define NEXT_BTN_PIN 2
 
-KeyboardState pressedButton = KeyboardState::None;
+#define HOLD_THRESHOLD 3000
 
-void initKeyboard() {
-  pinMode(PLAY_BTN_PIN, INPUT);
-  pinMode(LIKE_BTN_PIN, INPUT);
-  pinMode(PREV_BTN_PIN, INPUT);
-  pinMode(NEXT_BTN_PIN, INPUT);
+KeyboardState pressedButton = KeyboardState::None;
+unsigned long buttonPressTime = 0;
+
+void handleShortPress(KeyboardState btn) {
+  switch (state) {
+    case DeviceState::SetupComplete:
+      if (btn == KeyboardState::Play) ESP.restart();
+      break;
+  }
+}
+
+void handleLongPress(KeyboardState btn) {
+  // hold event
 }
 
 bool getButtonState(KeyboardState id) {
@@ -43,10 +51,23 @@ KeyboardState getKeyboardState() {
   return KeyboardState::None;
 }
 
+void initKeyboard() {
+  pinMode(PLAY_BTN_PIN, INPUT);
+  pinMode(LIKE_BTN_PIN, INPUT);
+  pinMode(PREV_BTN_PIN, INPUT);
+  pinMode(NEXT_BTN_PIN, INPUT);
+}
+
 void processKeyboard() {
   if (pressedButton == KeyboardState::None) {
     pressedButton = getKeyboardState();
+    buttonPressTime = millis();
   } else if (!getButtonState(pressedButton)) {
+    if(millis() - buttonPressTime < HOLD_THRESHOLD) {
+      handleShortPress(pressedButton);
+    } else {
+      handleLongPress(pressedButton);
+    }
     pressedButton = KeyboardState::None;
   }
 }
