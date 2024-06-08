@@ -1,8 +1,20 @@
 <html lang="en">
 <head>
     <title>Spotte Web Config</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        h1 { text-align: center; }
+        input { width: 100%; }
+    </style>
 </head>
 <body>
-    HELLO WORLD - WORK IN PROGRESS
+    <h1>SPOTT-E</h1>
+    <form method="get" action="/submit">
+        <p>Wi-Fi SSID:<br /><input type="text" name="ssid" /></p>
+        <p>Wi-Fi password:<br /><input type="text" name="pass" /></p>
+        <p>Spotify access token:<br /><input type="text" name="auth" /></p>
+        <p>How to get the access token?<br />Go back to your normal Wi-Fi network, open <a href="https://google.com">this link</a> and follow the instruction.</p>
+        <button type="submit">Save and initialize</button>
+    </form>
 </body>
 </html>
