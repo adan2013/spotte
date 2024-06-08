@@ -1,3 +1,8 @@
+#define PLAY_BTN_PIN 0
+#define LIKE_BTN_PIN 1
+#define PREV_BTN_PIN 10
+#define NEXT_BTN_PIN 2
+
 KeyboardState pressedButton = KB_NONE;
 
 void initKeyboard() {
