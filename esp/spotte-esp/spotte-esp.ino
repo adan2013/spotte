@@ -20,6 +20,7 @@ enum class DeviceState {
   Init,
   Setup,
   SetupComplete,
+  FactoryReset,
   ConnectingWiFi,
 };
 

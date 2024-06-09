@@ -6,12 +6,20 @@
 #define HOLD_THRESHOLD 3000
 
 KeyboardState pressedButton = KeyboardState::None;
+bool holdTriggered = false;
 unsigned long buttonPressTime = 0;
 
 void handleShortPress(KeyboardState btn) {
   switch (state) {
     case DeviceState::SetupComplete:
       if (btn == KeyboardState::Play) ESP.restart();
+      break;
+    case DeviceState::FactoryReset:
+      if (btn == KeyboardState::Play) {
+        resetStorage();
+        ESP.restart();
+      }
+      if (btn == KeyboardState::Like) ESP.restart();
       break;
   }
 }
@@ -58,16 +66,31 @@ void initKeyboard() {
   pinMode(NEXT_BTN_PIN, INPUT);
 }
 
+bool isResetSequence() {
+  return !getButtonState(KeyboardState::Play)
+      && getButtonState(KeyboardState::Like)
+      && getButtonState(KeyboardState::Prev)
+      && !getButtonState(KeyboardState::Next);
+}
+
 void processKeyboard() {
   if (pressedButton == KeyboardState::None) {
     pressedButton = getKeyboardState();
     buttonPressTime = millis();
-  } else if (!getButtonState(pressedButton)) {
-    if(millis() - buttonPressTime < HOLD_THRESHOLD) {
-      handleShortPress(pressedButton);
+  } else {
+    if (getButtonState(pressedButton)) {
+      if (!holdTriggered && millis() - buttonPressTime > HOLD_THRESHOLD) {
+        holdTriggered = true;
+        if (isResetSequence()) {
+          switchState(DeviceState::FactoryReset);
+        } else {
+          handleLongPress(pressedButton);
+        }
+      }
     } else {
-      handleLongPress(pressedButton);
+      if (!holdTriggered) handleShortPress(pressedButton);
+      pressedButton = KeyboardState::None;
+      holdTriggered = false;
     }
-    pressedButton = KeyboardState::None;
   }
 }

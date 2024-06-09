@@ -36,3 +36,10 @@ void saveConfigToStorage(String ssid, String password, String token) {
   storage.putBytes("config", &config, sizeof(config));
   closeStorage();
 }
+
+void resetStorage() {
+  openStorage();
+  config.configured = false;
+  storage.putBytes("config", &config, sizeof(config));
+  closeStorage();
+}
