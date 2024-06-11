@@ -1,12 +1,4 @@
-struct StorageStruct {
-  bool configured;
-  char ssid[40];
-  char password[70];
-  char token[300];
-};
-
 Preferences storage;
-StorageStruct config;
 
 void openStorage() {
   storage.begin("spotte", false);

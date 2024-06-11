@@ -28,6 +28,12 @@ void renderDisplay() {
     case DeviceState::ConnectingWiFi:
       drawLogotype("Connecting to Wi-Fi");
       break;
+    case DeviceState::Player:
+      renderPlayer();
+      break;
+    case DeviceState::ConnectionLost:
+      drawLogotype("Connection lost!");
+      break;
   }
   display.display();
 }
@@ -39,7 +45,7 @@ void switchState(DeviceState newState) {
     case DeviceState::Setup:
       turnOnAccessPoint();
     case DeviceState::ConnectingWiFi:
-      // connect to wifi
+      connectToWiFi();
       break;
   }
 }

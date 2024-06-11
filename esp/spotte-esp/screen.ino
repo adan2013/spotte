@@ -7,6 +7,10 @@
 
 Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
 
+Adafruit_SH1106G getDisplay() {
+  return display;
+}
+
 int getTextWidth(const char *input) {
   int16_t x1, y1;
   uint16_t w, h;
@@ -48,6 +52,7 @@ void initScreen() {
   Wire.begin(SDA_PIN, SCL_PIN);
   delay(250);
   display.begin(SCREEN_ADDRESS, true);
+  display.setTextWrap(false);
   switchState(DeviceState::Init);
   delay(1000);
 }

@@ -22,9 +22,19 @@ enum class DeviceState {
   SetupComplete,
   FactoryReset,
   ConnectingWiFi,
+  Player,
+  ConnectionLost,
+};
+
+struct StorageStruct {
+  bool configured;
+  char ssid[40];
+  char password[70];
+  char token[300];
 };
 
 DeviceState state = DeviceState::Init;
+StorageStruct config;
 
 void setup() {
   Serial.begin(9600);
@@ -36,4 +46,6 @@ void setup() {
 void loop() {
   processKeyboard();
   processApClients();
+  monitorWiFiConnection();
+  animatePlayerScreen();
 }
