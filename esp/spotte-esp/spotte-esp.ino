@@ -8,6 +8,13 @@
 #include <WebServer.h>
 #include <uri/UriGlob.h>
 
+#define SDA_PIN 5
+#define SCL_PIN 6
+#define SCREEN_ADDRESS 0x3c
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define SCREEN_RESET -1
+
 enum class KeyboardState {
   None = 0,
   Play = 1,
@@ -33,6 +40,7 @@ struct StorageStruct {
   char token[300];
 };
 
+Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
 DeviceState state = DeviceState::Init;
 StorageStruct config;
 

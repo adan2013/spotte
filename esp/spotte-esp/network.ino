@@ -11,8 +11,8 @@ void connectToWiFi() {
 void monitorWiFiConnection() {
   if (networkRequired) {
     if (WiFi.status() != WL_CONNECTED) {
-      // networkRequired = false;
-      // switchState(DeviceState::ConnectionLost);
+      networkRequired = false;
+      switchState(DeviceState::ConnectionLost);
     }
   }
 }

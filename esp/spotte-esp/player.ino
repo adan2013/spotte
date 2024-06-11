@@ -14,23 +14,19 @@ char title[150] = "Asylums for the feeling feat. Leila Adu";
 char artist[150] = "Silent Poets";
 
 void renderPlayer() {
-  Adafruit_SH1106G display = getDisplay();
   display.clearDisplay();
   display.drawBitmap(73, 0, repeatModeIcon, 16, 16, SH110X_WHITE);
   display.drawBitmap(93, 0, randomModeIcon, 16, 16, SH110X_WHITE);
   display.drawBitmap(113, 0, heartOffIcon, 16, 16, SH110X_WHITE);
 
-  display.setCursor(titleOffset, 20);
   titleScreenLength = getTextWidth(title);
   artistScreenLength = getTextWidth(artist);
-  display.println(title);
-  display.setCursor(artistOffset, display.getCursorY() + 6);
-  display.println(artist);
+  printToLeft(titleOffset, 20, title);
+  printToLeft(artistOffset, 32, artist);
 
-  display.setCursor(0, 50);
-  display.println("0:54");
-  display.setCursor(103, 50);
-  display.println("4:31");
+  printToLeft(0, 50, "0:54");
+  printToRight(display.width(), 50, "4:31");
+  
   if (blinkAnimationFlag) {
     display.fillRect(60, 48, 3, 8, SH110X_WHITE);
     display.fillRect(65, 48, 3, 8, SH110X_WHITE);
@@ -45,23 +41,23 @@ void animatePlayerScreen() {
   if (state == DeviceState::Player && millis() > nextAnimationUpdateTime) {
     nextAnimationUpdateTime = millis() + ANIMATION_INTERVAL;
     blinkAnimationFlag = !blinkAnimationFlag;
-    // int16_t w = getDisplay().width();
-    // bool titleOverflow = titleScreenLength > w;
-    // bool artistOverflow = artistScreenLength > w;
-    // bool titleReached = false;
-    // bool artistReached = false;
-    // if (titleOverflow) {
-    //   titleOffset -= SCROLL_STEP;
-    //   titleReached = titleOffset < titleScreenLength * -1;
-    // }
-    // if (artistOverflow) {
-    //   artistOffset -= SCROLL_STEP;
-    //   artistReached = artistOffset < artistScreenLength * -1 || !artistOverflow;
-    // }
-    // if ((titleReached || !titleOverflow) && (artistReached || !artistOverflow)) {
-    //   titleOffset = 0;
-    //   artistOffset = 0;
-    // }
+    int16_t w = display.width();
+    bool titleOverflow = titleScreenLength > w;
+    bool artistOverflow = artistScreenLength > w;
+    bool titleReached = false;
+    bool artistReached = false;
+    if (titleOverflow) {
+      titleOffset -= SCROLL_STEP;
+      titleReached = titleOffset < titleScreenLength * -1;
+    }
+    if (artistOverflow) {
+      artistOffset -= SCROLL_STEP;
+      artistReached = artistOffset < artistScreenLength * -1;
+    }
+    if ((titleReached || !titleOverflow) && (artistReached || !artistOverflow)) {
+      titleOffset = 0;
+      artistOffset = 0;
+    }
     renderPlayer();
   }
 }

@@ -21,6 +21,9 @@ void handleShortPress(KeyboardState btn) {
       }
       if (btn == KeyboardState::Like) ESP.restart();
       break;
+    case DeviceState::ConnectionLost:
+      if (btn == KeyboardState::Play) switchState(DeviceState::ConnectingWiFi);
+      break;
   }
 }
 

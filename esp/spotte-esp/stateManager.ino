@@ -32,7 +32,12 @@ void renderDisplay() {
       renderPlayer();
       break;
     case DeviceState::ConnectionLost:
-      drawLogotype("Connection lost!");
+      printToCenter(display.width() / 2, 0, "ERROR");
+      printToLeft(0, 12, "We lost connection");
+      printToLeft(0, 22, "with your Wi-Fi");
+      printToLeft(0, 35, "Saved SSID:");
+      printToLeft(0, 45, config.ssid);
+      printToLeft(0, 55, "Press play to retry");
       break;
   }
   display.display();
