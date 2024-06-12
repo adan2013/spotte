@@ -15,7 +15,7 @@ void renderDisplay() {
     case DeviceState::SetupComplete:
       printToCenter(display.width() / 2, 0, "SETUP MODE");
       printToLeft(0, 25, "Setup completed.");
-      printToLeft(0, 35, "Press \"Play\" button");
+      printToLeft(0, 35, "Press Play button");
       printToLeft(0, 45, "to restart the device");
       break;
     case DeviceState::FactoryReset:
@@ -44,12 +44,13 @@ void renderDisplay() {
       display.fillRect(0, display.height() - 4, display.width() * player.trackProgress, 4, SH110X_WHITE);
       break;
     case DeviceState::ConnectionLost:
-      printToCenter(display.width() / 2, 0, "ERROR");
-      printToLeft(0, 12, "We lost connection");
-      printToLeft(0, 22, "with your Wi-Fi");
-      printToLeft(0, 35, "Saved SSID:");
-      printToLeft(0, 45, config.ssid);
-      printToLeft(0, 55, "Press play to retry");
+    case DeviceState::ConnectionLostWithPassword:
+      printToLeft(0, 0, "Wi-Fi connection lost");
+      printToLeft(0, 12, "SSID:");
+      printToLeft(0, 22, config.ssid);
+      printToLeft(0, 32, "Password:");
+      printToLeft(0, 42, state == DeviceState::ConnectionLost ? "(Hold Like to reveal)" : config.password);
+      printToLeft(0, 55, "Press Play to retry");
       break;
   }
   display.display();

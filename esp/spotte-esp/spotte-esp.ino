@@ -24,6 +24,7 @@ enum class DeviceState {
   ConnectingWiFi,
   Player,
   ConnectionLost,
+  ConnectionLostWithPassword,
 };
 
 struct StorageStruct {

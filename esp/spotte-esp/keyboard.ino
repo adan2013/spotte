@@ -22,13 +22,21 @@ void handleShortPress(KeyboardState btn) {
       if (btn == KeyboardState::Like) ESP.restart();
       break;
     case DeviceState::ConnectionLost:
+    case DeviceState::ConnectionLostWithPassword:
       if (btn == KeyboardState::Play) switchState(DeviceState::ConnectingWiFi);
       break;
   }
 }
 
 void handleLongPress(KeyboardState btn) {
-  // hold event
+  switch (state) {
+    case DeviceState::ConnectionLost:
+    if (btn == KeyboardState::Like) switchState(DeviceState::ConnectionLostWithPassword);
+      break;
+    case DeviceState::ConnectionLostWithPassword:
+      if (btn == KeyboardState::Like) switchState(DeviceState::ConnectionLost);
+      break;
+  }
 }
 
 bool getButtonState(KeyboardState id) {
