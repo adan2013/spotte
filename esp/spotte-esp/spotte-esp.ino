@@ -8,13 +8,6 @@
 #include <WebServer.h>
 #include <uri/UriGlob.h>
 
-#define SDA_PIN 5
-#define SCL_PIN 6
-#define SCREEN_ADDRESS 0x3c
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define SCREEN_RESET -1
-
 enum class KeyboardState {
   None = 0,
   Play = 1,
@@ -40,15 +33,34 @@ struct StorageStruct {
   char token[300];
 };
 
-Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
+struct ScrollableText {
+  char value[150];
+  int screenLength;
+  int offset;
+};
+
+struct PlayerStruct {
+  ScrollableText title;
+  ScrollableText artist;
+  bool repeat;
+  bool shuffle;
+  bool liked;
+  bool paused;
+  int trackPosition;
+  int trackLength;
+  float trackProgress;
+};
+
 DeviceState state = DeviceState::Init;
 StorageStruct config;
+PlayerStruct player;
 
 void setup() {
   Serial.begin(9600);
   initKeyboard();
   initScreen();
   loadConfigFromStorage();
+  updatePlayerState();
 }
 
 void loop() {

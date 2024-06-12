@@ -29,7 +29,19 @@ void renderDisplay() {
       drawLogotype("Connecting to Wi-Fi");
       break;
     case DeviceState::Player:
-      renderPlayer();
+      if (player.repeat) display.drawBitmap(73, 0, repeatModeIcon, 16, 16, SH110X_WHITE);
+      if (player.shuffle) display.drawBitmap(93, 0, randomModeIcon, 16, 16, SH110X_WHITE);
+      display.drawBitmap(113, 0, player.liked ? heartOnIcon : heartOffIcon, 16, 16, SH110X_WHITE);
+      printToLeft(player.title.offset, 20, player.title.value);
+      printToLeft(player.artist.offset, 32, player.artist.value);
+      printToLeft(0, 50, "0:00");
+      printToRight(display.width(), 50, "0:00");
+      if (player.paused && blinkAnimationFlag) {
+        display.fillRect(60, 48, 3, 8, SH110X_WHITE);
+        display.fillRect(65, 48, 3, 8, SH110X_WHITE);
+      }
+      display.drawRect(0, display.height() - 4, display.width(), 4, SH110X_WHITE);
+      display.fillRect(0, display.height() - 4, display.width() * player.trackProgress, 4, SH110X_WHITE);
       break;
     case DeviceState::ConnectionLost:
       printToCenter(display.width() / 2, 0, "ERROR");

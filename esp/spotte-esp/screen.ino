@@ -1,4 +1,11 @@
+#define SDA_PIN 5
+#define SCL_PIN 6
+#define SCREEN_ADDRESS 0x3c
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define SCREEN_RESET -1
 
+Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
 
 int getTextWidth(const char *input) {
   int16_t x1, y1;
