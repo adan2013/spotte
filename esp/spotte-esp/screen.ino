@@ -7,6 +7,19 @@
 
 Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
 
+char* parseTimeValue(int value) {
+  static char output[8];
+  int hours = value / 3600;
+  int minutes = (value % 3600) / 60;
+  int seconds = value % 60;
+  if (hours > 0) {
+    snprintf(output, sizeof(output), "%d:%02d:%02d", hours, minutes, seconds);
+  } else {
+    snprintf(output, sizeof(output), "%02d:%02d", minutes, seconds);
+  }
+  return output;
+}
+
 int getTextWidth(const char *input) {
   int16_t x1, y1;
   uint16_t w, h;

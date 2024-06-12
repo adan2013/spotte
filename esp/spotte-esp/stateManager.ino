@@ -34,8 +34,8 @@ void renderDisplay() {
       display.drawBitmap(113, 0, player.liked ? heartOnIcon : heartOffIcon, 16, 16, SH110X_WHITE);
       printToLeft(player.title.offset, 20, player.title.value);
       printToLeft(player.artist.offset, 32, player.artist.value);
-      printToLeft(0, 50, "0:00");
-      printToRight(display.width(), 50, "0:00");
+      printToLeft(0, 50, parseTimeValue(player.trackPosition));
+      printToRight(display.width(), 50, parseTimeValue(player.trackLength));
       if (player.paused && blinkAnimationFlag) {
         display.fillRect(60, 48, 3, 8, SH110X_WHITE);
         display.fillRect(65, 48, 3, 8, SH110X_WHITE);

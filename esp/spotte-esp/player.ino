@@ -12,6 +12,10 @@ void updatePlayerState() {
   player.artist.screenLength = getTextWidth(player.artist.value);
   player.title.offset = 0;
   player.artist.offset = 0;
+  player.trackPosition = 3601;
+  player.paused = true;
+  player.trackLength = 3721;
+  player.trackProgress = 0.38;
 }
 
 void animatePlayerScreen() {
