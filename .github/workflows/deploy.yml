@@ -5,14 +5,14 @@ on:
     branches:
       - main
 
-defaults:
-  run:
-    working-directory: web/spotte-web-auth
-
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: './web/spotte-web-auth'
 
     steps:
       - name: Checkout repoistory
