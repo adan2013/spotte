@@ -41,7 +41,7 @@ void renderDisplay() {
         display.fillRect(65, 48, 3, 8, SH110X_WHITE);
       }
       display.drawRect(0, display.height() - 4, display.width(), 4, SH110X_WHITE);
-      display.fillRect(0, display.height() - 4, display.width() * player.trackProgress, 4, SH110X_WHITE);
+      display.fillRect(0, display.height() - 4, display.width() * getTrackProgressBarValue(), 4, SH110X_WHITE);
       break;
     case DeviceState::ConnectionLost:
     case DeviceState::ConnectionLostWithPassword:

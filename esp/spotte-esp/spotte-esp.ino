@@ -49,7 +49,6 @@ struct PlayerStruct {
   bool paused;
   int trackPosition;
   int trackLength;
-  float trackProgress;
 };
 
 DeviceState state = DeviceState::Init;

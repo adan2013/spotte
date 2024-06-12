@@ -5,6 +5,10 @@
 unsigned long nextAnimationUpdateTime = 0;
 bool blinkAnimationFlag = false;
 
+float getTrackProgressBarValue() {
+  return float(player.trackPosition) / float(player.trackLength);
+}
+
 void updatePlayerState() {
   strcpy(player.title.value, "Asylums for the feeling feat. Leila Adu");
   strcpy(player.artist.value, "Silent Poets");
@@ -13,9 +17,8 @@ void updatePlayerState() {
   player.title.offset = 0;
   player.artist.offset = 0;
   player.trackPosition = 3601;
-  player.paused = true;
   player.trackLength = 3721;
-  player.trackProgress = 0.38;
+  player.paused = true;
 }
 
 void animatePlayerScreen() {
