@@ -15,10 +15,6 @@ void handleShortPress(KeyboardState btn) {
       if (btn == KeyboardState::Play) ESP.restart();
       break;
     case DeviceState::FactoryReset:
-      if (btn == KeyboardState::Play) {
-        resetStorage();
-        ESP.restart();
-      }
       if (btn == KeyboardState::Like) ESP.restart();
       break;
     case DeviceState::ConnectionLost:
@@ -30,6 +26,12 @@ void handleShortPress(KeyboardState btn) {
 
 void handleLongPress(KeyboardState btn) {
   switch (state) {
+    case DeviceState::FactoryReset:
+      if (btn == KeyboardState::Play) {
+        resetStorage();
+        ESP.restart();
+      }
+      break;
     case DeviceState::ConnectionLost:
     if (btn == KeyboardState::Like) switchState(DeviceState::ConnectionLostWithPassword);
       break;

@@ -22,7 +22,7 @@ void renderDisplay() {
       printToCenter(display.width() / 2, 0, "FACTORY RESET");
       printToLeft(0, 15, "Do you want to reset");
       printToLeft(0, 25, "this device?");
-      printToLeft(0, 45, "Press Play to confirm");
+      printToLeft(0, 45, "Hold Play to reset");
       printToLeft(0, 55, "Press Like to cancel");
       break;
     case DeviceState::ConnectingWiFi:
