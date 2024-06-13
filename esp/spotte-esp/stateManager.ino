@@ -62,6 +62,7 @@ void switchState(DeviceState newState) {
   switch (state) {
     case DeviceState::Setup:
       turnOnAccessPoint();
+      break;
     case DeviceState::ConnectingWiFi:
       connectToWiFi();
       break;
