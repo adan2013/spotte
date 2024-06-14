@@ -7,6 +7,9 @@
 #include <DNSServer.h>
 #include <WebServer.h>
 #include <uri/UriGlob.h>
+#include <HTTPClient.h>
+#include <base64.h>
+#include <ArduinoJson.h>
 
 enum class KeyboardState {
   None = 0,
@@ -22,9 +25,12 @@ enum class DeviceState {
   SetupComplete,
   FactoryReset,
   ConnectingWiFi,
+  LoggingIn,
+  FetchingData,
   Player,
   ConnectionLost,
   ConnectionLostWithPassword,
+  Error,
 };
 
 struct StorageStruct {
@@ -43,26 +49,28 @@ struct ScrollableText {
 };
 
 struct PlayerStruct {
+  bool trackLoaded;
   ScrollableText title;
   ScrollableText artist;
   bool repeat;
   bool shuffle;
   bool liked;
   bool paused;
-  int trackPosition;
-  int trackLength;
+  long trackPosition;
+  long trackLength;
 };
 
 DeviceState state = DeviceState::Init;
 StorageStruct config;
 PlayerStruct player;
+String spotifyAccessToken;
+String errorMsg;
 
 void setup() {
   Serial.begin(9600);
   initKeyboard();
   initScreen();
   loadConfigFromStorage();
-  updatePlayerState();
 }
 
 void loop() {

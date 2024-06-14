@@ -9,18 +9,6 @@ float getTrackProgressBarValue() {
   return float(player.trackPosition) / float(player.trackLength);
 }
 
-void updatePlayerState() {
-  strcpy(player.title.value, "Asylums for the feeling feat. Leila Adu");
-  strcpy(player.artist.value, "Silent Poets");
-  player.title.screenLength = getTextWidth(player.title.value);
-  player.artist.screenLength = getTextWidth(player.artist.value);
-  player.title.offset = 0;
-  player.artist.offset = 0;
-  player.trackPosition = 3601;
-  player.trackLength = 3721;
-  player.paused = true;
-}
-
 void animatePlayerScreen() {
   if (state == DeviceState::Player && millis() > nextAnimationUpdateTime) {
     nextAnimationUpdateTime = millis() + ANIMATION_INTERVAL;

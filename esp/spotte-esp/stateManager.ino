@@ -28,20 +28,30 @@ void renderDisplay() {
     case DeviceState::ConnectingWiFi:
       drawLogotype("Connecting to Wi-Fi");
       break;
+    case DeviceState::LoggingIn:
+      drawLogotype("Logging in");
+      break;
+    case DeviceState::FetchingData:
+      drawLogotype("Fetching data");
+      break;
     case DeviceState::Player:
-      if (player.repeat) display.drawBitmap(73, 0, repeatModeIcon, 16, 16, SH110X_WHITE);
-      if (player.shuffle) display.drawBitmap(93, 0, randomModeIcon, 16, 16, SH110X_WHITE);
-      display.drawBitmap(113, 0, player.liked ? heartOnIcon : heartOffIcon, 16, 16, SH110X_WHITE);
-      printToLeft(player.title.offset, 20, player.title.value);
-      printToLeft(player.artist.offset, 32, player.artist.value);
-      printToLeft(0, 50, parseTimeValue(player.trackPosition));
-      printToRight(display.width(), 50, parseTimeValue(player.trackLength));
-      if (player.paused && blinkAnimationFlag) {
-        display.fillRect(60, 48, 3, 8, SH110X_WHITE);
-        display.fillRect(65, 48, 3, 8, SH110X_WHITE);
+      if (player.trackLoaded) {
+        if (player.repeat) display.drawBitmap(73, 0, repeatModeIcon, 16, 16, SH110X_WHITE);
+        if (player.shuffle) display.drawBitmap(93, 0, randomModeIcon, 16, 16, SH110X_WHITE);
+        display.drawBitmap(113, 0, player.liked ? heartOnIcon : heartOffIcon, 16, 16, SH110X_WHITE);
+        printToLeft(player.title.offset, 20, player.title.value);
+        printToLeft(player.artist.offset, 32, player.artist.value);
+        printToLeft(0, 50, parseTimeValue(player.trackPosition));
+        printToRight(display.width(), 50, parseTimeValue(player.trackLength));
+        if (player.paused && blinkAnimationFlag) {
+          display.fillRect(60, 48, 3, 8, SH110X_WHITE);
+          display.fillRect(65, 48, 3, 8, SH110X_WHITE);
+        }
+        display.drawRect(0, display.height() - 4, display.width(), 4, SH110X_WHITE);
+        display.fillRect(0, display.height() - 4, display.width() * getTrackProgressBarValue(), 4, SH110X_WHITE);
+      } else {
+        printToCenter(display.width() / 2, 30, "Nothing is playing");
       }
-      display.drawRect(0, display.height() - 4, display.width(), 4, SH110X_WHITE);
-      display.fillRect(0, display.height() - 4, display.width() * getTrackProgressBarValue(), 4, SH110X_WHITE);
       break;
     case DeviceState::ConnectionLost:
     case DeviceState::ConnectionLostWithPassword:
@@ -51,6 +61,13 @@ void renderDisplay() {
       printToLeft(0, 32, "Password:");
       printToLeft(0, 42, state == DeviceState::ConnectionLost ? "(Hold Like to reveal)" : config.password);
       printToLeft(0, 55, "Press Play to retry");
+      break;
+    case DeviceState::Error:
+      printToCenter(display.width() / 2, 0, "ERROR");
+      display.setTextWrap(true);
+      display.setCursor(0, 12);
+      display.println(errorMsg);
+      display.setTextWrap(false);
       break;
   }
   display.display();
@@ -65,6 +82,20 @@ void switchState(DeviceState newState) {
       break;
     case DeviceState::ConnectingWiFi:
       connectToWiFi();
+      break;
+    case DeviceState::LoggingIn:
+      if (refreshAccessToken()) {
+        switchState(DeviceState::FetchingData);
+      } else {
+        switchState(DeviceState::Error);
+      }
+      break;
+    case DeviceState::FetchingData:
+      if (updatePlayerState()) {
+        switchState(DeviceState::Player);
+      } else {
+        switchState(DeviceState::Error);
+      }
       break;
   }
 }

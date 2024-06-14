@@ -31,6 +31,13 @@ void saveConfigToStorage(String ssid, String password, String clientId, String c
   closeStorage();
 }
 
+void saveNewRefreshToken(String token) {
+  openStorage();
+  token.toCharArray(config.refreshToken, 300);
+  storage.putBytes("config", &config, sizeof(config));
+  closeStorage();
+}
+
 void resetStorage() {
   openStorage();
   config.configured = false;
