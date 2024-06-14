@@ -31,7 +31,9 @@ struct StorageStruct {
   bool configured;
   char ssid[40];
   char password[70];
-  char token[300];
+  char clientId[100];
+  char clientSecret[100];
+  char refreshToken[300];
 };
 
 struct ScrollableText {

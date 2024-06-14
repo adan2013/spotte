@@ -19,12 +19,14 @@ void loadConfigFromStorage() {
   closeStorage();
 }
 
-void saveConfigToStorage(String ssid, String password, String token) {
+void saveConfigToStorage(String ssid, String password, String clientId, String clientSecret, String refreshToken) {
   openStorage();
   config.configured = true;
   ssid.toCharArray(config.ssid, 40);
   password.toCharArray(config.password, 70);
-  token.toCharArray(config.token, 300);
+  clientId.toCharArray(config.clientId, 100);
+  clientSecret.toCharArray(config.clientSecret, 100);
+  refreshToken.toCharArray(config.refreshToken, 300);
   storage.putBytes("config", &config, sizeof(config));
   closeStorage();
 }
