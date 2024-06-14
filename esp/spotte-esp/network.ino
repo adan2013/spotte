@@ -85,12 +85,16 @@ bool updatePlayerState() {
     }
 
     player.trackLoaded = true;
+    char previousTitle[sizeof(player.title.value)];
+    strcpy(previousTitle, player.title.value);
     title.toCharArray(player.title.value, 150);
     artist.toCharArray(player.artist.value, 150);
-    player.title.screenLength = getTextWidth(player.title.value);
-    player.artist.screenLength = getTextWidth(player.artist.value);
-    player.title.offset = 0;
-    player.artist.offset = 0;
+    if (strcmp(previousTitle, player.title.value) != 0) {
+      player.title.screenLength = getTextWidth(player.title.value);
+      player.artist.screenLength = getTextWidth(player.artist.value);
+      player.title.offset = 0;
+      player.artist.offset = 0;
+    }
 
     player.trackPosition = doc["progress_ms"].as<long>() / 1000;
     player.trackLength = item["duration_ms"].as<long>() / 1000;

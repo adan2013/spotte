@@ -1,8 +1,10 @@
 #define SCREEN_SCROLL_LIMIT 128
 #define ANIMATION_INTERVAL 600
 #define SCROLL_STEP 8
+#define PLAYER_UPDATE_INTERVAL 3000
 
 unsigned long nextAnimationUpdateTime = 0;
+unsigned long nextPlayerUpdateTime = 0;
 bool blinkAnimationFlag = false;
 
 float getTrackProgressBarValue() {
@@ -10,7 +12,8 @@ float getTrackProgressBarValue() {
 }
 
 void animatePlayerScreen() {
-  if (state == DeviceState::Player && millis() > nextAnimationUpdateTime) {
+  if (state != DeviceState::Player) return;
+  if (millis() > nextAnimationUpdateTime) {
     nextAnimationUpdateTime = millis() + ANIMATION_INTERVAL;
     blinkAnimationFlag = !blinkAnimationFlag;
     bool titleOverflow = player.title.screenLength > SCREEN_SCROLL_LIMIT;
@@ -30,5 +33,9 @@ void animatePlayerScreen() {
       player.artist.offset = 0;
     }
     renderDisplay();
+  }
+  if (millis() > nextPlayerUpdateTime) {
+    nextPlayerUpdateTime = millis() + PLAYER_UPDATE_INTERVAL;
+    updatePlayerState();
   }
 }
