@@ -92,6 +92,7 @@ void switchState(DeviceState newState) {
       break;
     case DeviceState::FetchingData:
       if (updatePlayerState()) {
+        initPlayerScreen();
         switchState(DeviceState::Player);
       } else {
         switchState(DeviceState::Error);

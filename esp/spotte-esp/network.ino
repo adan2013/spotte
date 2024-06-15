@@ -32,7 +32,7 @@ bool refreshAccessToken() {
   int httpResponseCode = http.POST(postData);
 
   String payload = "";
-  if (httpResponseCode > 0) {
+  if (httpResponseCode == 200) {
 
     String payload = http.getString();
     DynamicJsonDocument doc(1024);
@@ -72,39 +72,10 @@ bool updatePlayerState() {
       return false;
     }
 
-    JsonObject item = doc["item"];
-    String title = item["name"].as<String>();
-    
-    JsonArray artists = item["artists"];
-    String artist = "";
-    for (JsonObject artistObj : artists) {
-      if (artist.length() > 0) {
-        artist += ", ";
-      }
-      artist += artistObj["name"].as<String>();
-    }
-
-    player.trackLoaded = true;
-    char previousTitle[sizeof(player.title.value)];
-    strcpy(previousTitle, player.title.value);
-    title.toCharArray(player.title.value, 150);
-    artist.toCharArray(player.artist.value, 150);
-    if (strcmp(previousTitle, player.title.value) != 0) {
-      player.title.screenLength = getTextWidth(player.title.value);
-      player.artist.screenLength = getTextWidth(player.artist.value);
-      player.title.offset = 0;
-      player.artist.offset = 0;
-    }
-
-    player.trackPosition = doc["progress_ms"].as<long>() / 1000;
-    player.trackLength = item["duration_ms"].as<long>() / 1000;
-    player.paused = !doc["is_playing"].as<bool>();
-    player.shuffle = doc["shuffle_state"].as<bool>();
-    player.repeat = doc["repeat_state"].as<String>() != "off";
-
+    updatePlayerState(doc);
     return true;
   } else if (httpResponseCode == 204) {
-    player.trackLoaded = false;
+    resetPlayerState();
     return true;
   } else {
     errorMsg = "player response code: " + String(httpResponseCode);

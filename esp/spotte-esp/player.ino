@@ -1,11 +1,47 @@
 #define SCREEN_SCROLL_LIMIT 128
-#define ANIMATION_INTERVAL 600
-#define SCROLL_STEP 8
+#define ANIMATION_INTERVAL 1000
+#define SCROLL_STEP 10
 #define PLAYER_UPDATE_INTERVAL 3000
 
-unsigned long nextAnimationUpdateTime = 0;
-unsigned long nextPlayerUpdateTime = 0;
+unsigned long lastAnimationUpdateTime = 0;
+unsigned long lastPlayerUpdateTime = 0;
 bool blinkAnimationFlag = false;
+
+void resetPlayerState() {
+  player.trackLoaded = false;
+}
+
+void updatePlayerState(DynamicJsonDocument doc) {
+  JsonObject item = doc["item"];
+  String title = item["name"].as<String>();
+  
+  JsonArray artists = item["artists"];
+  String artist = "";
+  for (JsonObject artistObj : artists) {
+    if (artist.length() > 0) {
+      artist += ", ";
+    }
+    artist += artistObj["name"].as<String>();
+  }
+
+  player.trackLoaded = true;
+  char previousTitle[sizeof(player.title.value)];
+  strcpy(previousTitle, player.title.value);
+  title.toCharArray(player.title.value, 150);
+  artist.toCharArray(player.artist.value, 150);
+  if (strcmp(previousTitle, player.title.value) != 0) {
+    player.title.screenLength = getTextWidth(player.title.value);
+    player.artist.screenLength = getTextWidth(player.artist.value);
+    player.title.offset = 0;
+    player.artist.offset = 0;
+  }
+
+  player.trackPosition = doc["progress_ms"].as<long>();
+  player.trackLength = item["duration_ms"].as<long>();
+  player.paused = !doc["is_playing"].as<bool>();
+  player.shuffle = doc["shuffle_state"].as<bool>();
+  player.repeat = doc["repeat_state"].as<String>() != "off";
+}
 
 float getTrackProgressBarValue() {
   return float(player.trackPosition) / float(player.trackLength);
@@ -13,8 +49,10 @@ float getTrackProgressBarValue() {
 
 void animatePlayerScreen() {
   if (state != DeviceState::Player) return;
-  if (millis() > nextAnimationUpdateTime) {
-    nextAnimationUpdateTime = millis() + ANIMATION_INTERVAL;
+  bool trackEndReached = false;
+  if (checkTimer(lastAnimationUpdateTime, ANIMATION_INTERVAL, false)) {
+    int deltaTime = millis() - lastAnimationUpdateTime;
+    resetTimer(lastAnimationUpdateTime);
     blinkAnimationFlag = !blinkAnimationFlag;
     bool titleOverflow = player.title.screenLength > SCREEN_SCROLL_LIMIT;
     bool artistOverflow = player.artist.screenLength > SCREEN_SCROLL_LIMIT;
@@ -32,10 +70,21 @@ void animatePlayerScreen() {
       player.title.offset = 0;
       player.artist.offset = 0;
     }
+    if (player.trackLoaded && !player.paused) {
+      player.trackPosition += deltaTime;
+      if (player.trackPosition >= player.trackLength) {
+        player.trackPosition = player.trackLength;
+        trackEndReached = true;
+      }
+    }
     renderDisplay();
   }
-  if (millis() > nextPlayerUpdateTime) {
-    nextPlayerUpdateTime = millis() + PLAYER_UPDATE_INTERVAL;
+  if (trackEndReached || checkTimer(lastPlayerUpdateTime, PLAYER_UPDATE_INTERVAL)) {
     updatePlayerState();
   }
+}
+
+void initPlayerScreen() {
+  lastAnimationUpdateTime = millis();
+  lastPlayerUpdateTime = millis();
 }

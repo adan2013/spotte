@@ -8,8 +8,9 @@
 #include <WebServer.h>
 #include <uri/UriGlob.h>
 #include <HTTPClient.h>
-#include <base64.h>
 #include <ArduinoJson.h>
+#include <math.h>
+#include <base64.h>
 
 enum class KeyboardState {
   None = 0,
@@ -65,6 +66,18 @@ StorageStruct config;
 PlayerStruct player;
 String spotifyAccessToken;
 String errorMsg;
+
+void resetTimer(unsigned long &timer) {
+  timer = millis();
+}
+
+bool checkTimer(unsigned long &timer, int interval, bool autoReset = true) {
+  if (timer + interval <= millis()) {
+    if (autoReset) resetTimer(timer);
+    return true;
+  }
+  return false;
+}
 
 void setup() {
   Serial.begin(9600);

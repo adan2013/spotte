@@ -7,11 +7,12 @@
 
 Adafruit_SH1106G display = Adafruit_SH1106G(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, SCREEN_RESET);
 
-char* parseTimeValue(int value) {
+char* parseTimeValue(int ms) {
+  long totalSeconds = round(ms / 1000);
   static char output[8];
-  int hours = value / 3600;
-  int minutes = (value % 3600) / 60;
-  int seconds = value % 60;
+  int hours = totalSeconds / 3600;
+  int minutes = (totalSeconds % 3600) / 60;
+  int seconds = totalSeconds % 60;
   if (hours > 0) {
     snprintf(output, sizeof(output), "%d:%02d:%02d", hours, minutes, seconds);
   } else {
