@@ -1,5 +1,5 @@
 #define API_TOKEN "https://accounts.spotify.com/api/token"
-#define API_PLAYER "https://api.spotify.com/v1/me/player/currently-playing"
+#define API_PLAYER "https://api.spotify.com/v1/me/player"
 
 bool networkRequired = false;
 
