@@ -85,6 +85,11 @@ void animatePlayerScreen() {
   }
 }
 
+void forcePlayerUpdate() {
+  resetTimer(lastPlayerUpdateTime);
+  updatePlayerState();
+}
+
 void initPlayerScreen() {
   lastAnimationUpdateTime = millis();
   lastPlayerUpdateTime = millis();

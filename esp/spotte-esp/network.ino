@@ -1,5 +1,9 @@
 #define API_TOKEN "https://accounts.spotify.com/api/token"
 #define API_PLAYER "https://api.spotify.com/v1/me/player"
+#define API_PLAY "https://api.spotify.com/v1/me/player/play"
+#define API_PAUSE "https://api.spotify.com/v1/me/player/pause"
+#define API_PREVIOUS "https://api.spotify.com/v1/me/player/previous"
+#define API_NEXT "https://api.spotify.com/v1/me/player/next"
 
 bool networkRequired = false;
 
@@ -82,4 +86,36 @@ bool updatePlayerState() {
   }
   http.end();
   return false;
+}
+
+bool triggerPlayerAction(String endpoint, bool usePostMethod) {
+  HTTPClient http;
+  http.begin(endpoint);
+  http.addHeader("Content-Length", "0");
+  http.addHeader("Authorization", "Bearer " + spotifyAccessToken);
+  int httpResponseCode = usePostMethod ? http.POST("") : http.PUT("");
+  if (httpResponseCode == 204) {
+    http.end();
+    return true;
+  } else {
+    errorMsg = "player action " + endpoint + " response code: " + String(httpResponseCode);
+    switchState(DeviceState::Error);
+    return false;
+  }
+}
+
+bool triggerPlay() {
+  return triggerPlayerAction(API_PLAY, false);
+}
+
+bool triggerPause() {
+  return triggerPlayerAction(API_PAUSE, false);
+}
+
+bool triggerPrevious() {
+  return triggerPlayerAction(API_PREVIOUS, true);
+}
+
+bool triggerNext() {
+  return triggerPlayerAction(API_NEXT, true);
 }
