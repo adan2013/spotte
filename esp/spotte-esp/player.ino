@@ -40,7 +40,8 @@ void updatePlayerState(DynamicJsonDocument doc) {
   player.trackLength = item["duration_ms"].as<long>();
   player.paused = !doc["is_playing"].as<bool>();
   player.shuffle = doc["shuffle_state"].as<bool>();
-  player.repeat = doc["repeat_state"].as<String>() != "off";
+  String rep = doc["repeat_state"].as<String>();
+  player.repeat = rep != "null" && rep != "off";
 }
 
 float getTrackProgressBarValue() {
