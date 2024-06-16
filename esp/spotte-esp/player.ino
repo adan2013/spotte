@@ -29,6 +29,7 @@ void updatePlayerState(DynamicJsonDocument doc) {
   String artist = "";
 
   if (type == "track") {
+    player.itemType = ItemType::Track;
     title = item["name"].as<String>();
     JsonArray artists = item["artists"];
     for (JsonObject artistObj : artists) {
@@ -40,6 +41,7 @@ void updatePlayerState(DynamicJsonDocument doc) {
     player.shuffle = doc["shuffle_state"].as<bool>();
     player.repeat = getRepeatModeState(doc["repeat_state"].as<String>());
   } else if (type == "episode") {
+    player.itemType = ItemType::Episode;
     title = item["name"].as<String>();
     artist = item["show"]["publisher"].as<String>();
     player.shuffle = false;

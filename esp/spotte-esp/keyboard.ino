@@ -27,11 +27,25 @@ void handleShortPress(KeyboardState btn) {
         forcePlayerUpdate();
       }
       if (btn == KeyboardState::Prev) {
-        triggerPrevious();
+        switch (player.itemType) {
+          case ItemType::Track:
+            triggerPrevious();
+            break;
+          case ItemType::Episode:
+            // seek -15 seconds
+            break;
+        }
         forcePlayerUpdate();
       }
       if (btn == KeyboardState::Next) {
-        triggerNext();
+        switch (player.itemType) {
+          case ItemType::Track:
+            triggerNext();
+            break;
+          case ItemType::Episode:
+            // seek +15 seconds
+            break;
+        }
         forcePlayerUpdate();
       }
       break;
@@ -52,11 +66,25 @@ void handleLongPress(KeyboardState btn) {
       break;
     case DeviceState::Player:
       if (btn == KeyboardState::Prev) {
-        toggleRepeatMode();
+        switch (player.itemType) {
+          case ItemType::Track:
+            toggleRepeatMode();
+            break;
+          case ItemType::Episode:
+            triggerPrevious();
+            break;
+        }
         forcePlayerUpdate();
       }
       if (btn == KeyboardState::Next) {
-        toggleShuffleMode();
+        switch (player.itemType) {
+          case ItemType::Track:
+            toggleShuffleMode();
+            break;
+          case ItemType::Episode:
+            triggerNext();
+            break;
+        }
         forcePlayerUpdate();
       }
       break;

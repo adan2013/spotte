@@ -34,6 +34,11 @@ enum class DeviceState {
   Error,
 };
 
+enum class ItemType {
+  Track,
+  Episode,
+};
+
 enum class RepeatMode {
   Off,
   RepeatAll,
@@ -57,6 +62,7 @@ struct ScrollableText {
 
 struct PlayerStruct {
   bool trackLoaded;
+  ItemType itemType;
   ScrollableText title;
   ScrollableText artist;
   RepeatMode repeat;
