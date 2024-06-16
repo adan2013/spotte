@@ -43,7 +43,7 @@ bool refreshAccessToken() {
     DeserializationError error = deserializeJson(doc, payload);
 
     if (error) {
-      errorMsg = "token JSON deserialization";
+      errorMsg = "Token JSON deserialization " + String(error.c_str());
       return false;
     }
 
@@ -54,8 +54,11 @@ bool refreshAccessToken() {
     }
 
     return true;
+  } else if (httpResponseCode < 0) {
+    errorMsg = "Token response code: " + String(httpResponseCode);
   } else {
-    errorMsg = "token response code: " + String(httpResponseCode);
+    String payload = http.getString();
+    errorMsg = "Token response code: " + String(httpResponseCode) + "; Payload: " + payload;
   }
   http.end();
   return false;
@@ -72,7 +75,7 @@ bool updatePlayerState() {
     DeserializationError error = deserializeJson(doc, payload);
 
     if (error) {
-      errorMsg = "player JSON deserialization";
+      errorMsg = "Player state JSON deserialization " + String(error.c_str());
       return false;
     }
 
@@ -81,8 +84,11 @@ bool updatePlayerState() {
   } else if (httpResponseCode == 204) {
     resetPlayerState();
     return true;
+  } else if (httpResponseCode < 0) {
+    errorMsg = "Player state response code: " + String(httpResponseCode);
   } else {
-    errorMsg = "player response code: " + String(httpResponseCode);
+    String payload = http.getString();
+    errorMsg = "Player state response code: " + String(httpResponseCode) + "; Payload: " + payload;
   }
   http.end();
   return false;
@@ -97,10 +103,11 @@ bool triggerPlayerAction(String endpoint, bool usePostMethod) {
   if (httpResponseCode == 204) {
     http.end();
     return true;
+  } else if (httpResponseCode < 0) {
+    errorMsg = "Player action response code: " + String(httpResponseCode);
   } else {
-    errorMsg = "player action " + endpoint + " response code: " + String(httpResponseCode);
-    switchState(DeviceState::Error);
-    return false;
+    String payload = http.getString();
+    errorMsg = "Player action response code: " + String(httpResponseCode) + "; Payload: " + payload;
   }
 }
 
