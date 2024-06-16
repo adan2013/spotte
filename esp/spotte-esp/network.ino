@@ -4,6 +4,8 @@
 #define API_PAUSE "https://api.spotify.com/v1/me/player/pause"
 #define API_PREVIOUS "https://api.spotify.com/v1/me/player/previous"
 #define API_NEXT "https://api.spotify.com/v1/me/player/next"
+#define API_SHUFFLE "https://api.spotify.com/v1/me/player/shuffle?state="
+#define API_REPEAT "https://api.spotify.com/v1/me/player/repeat?state="
 
 bool networkRequired = false;
 String spotifyAccessToken;
@@ -106,9 +108,13 @@ bool triggerAction(String operationName, const char *type, String endpoint) {
     return true;
   } else if (httpResponseCode < 0) {
     errorMsg = operationName + " response code: " + String(httpResponseCode);
+    http.end();
+    switchState(DeviceState::Error);
   } else {
     String payload = http.getString();
     errorMsg = operationName + " response code: " + String(httpResponseCode) + "; Payload: " + payload;
+    http.end();
+    switchState(DeviceState::Error);
   }
 }
 
@@ -126,4 +132,25 @@ bool triggerPrevious() {
 
 bool triggerNext() {
   return triggerAction("Next", "POST", API_NEXT);
+}
+
+bool toggleShuffleMode() {
+  String newState = player.shuffle ? "false" : "true";
+  return triggerAction("Toggle shuffle", "PUT", API_SHUFFLE + newState);
+}
+
+bool toggleRepeatMode() {
+  String newState = "";
+  switch(player.repeat) {
+    case RepeatMode::Off:
+      newState = "context";
+      break;
+    case RepeatMode::RepeatAll:
+      newState = "track";
+      break;
+    default:
+      newState = "off";
+      break;
+  }
+  return triggerAction("Toggle repeat", "PUT", API_REPEAT + newState);
 }

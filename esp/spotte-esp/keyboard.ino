@@ -3,7 +3,7 @@
 #define PREV_BTN_PIN 10
 #define NEXT_BTN_PIN 2
 
-#define HOLD_THRESHOLD 3000
+#define HOLD_THRESHOLD 2400
 
 KeyboardState pressedButton = KeyboardState::None;
 bool holdTriggered = false;
@@ -48,6 +48,16 @@ void handleLongPress(KeyboardState btn) {
       if (btn == KeyboardState::Play) {
         resetStorage();
         ESP.restart();
+      }
+      break;
+    case DeviceState::Player:
+      if (btn == KeyboardState::Prev) {
+        toggleRepeatMode();
+        forcePlayerUpdate();
+      }
+      if (btn == KeyboardState::Next) {
+        toggleShuffleMode();
+        forcePlayerUpdate();
       }
       break;
     case DeviceState::ConnectionLost:
