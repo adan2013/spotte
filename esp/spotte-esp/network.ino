@@ -4,6 +4,7 @@
 #define API_PAUSE "https://api.spotify.com/v1/me/player/pause"
 #define API_PREVIOUS "https://api.spotify.com/v1/me/player/previous"
 #define API_NEXT "https://api.spotify.com/v1/me/player/next"
+#define API_SEEK "https://api.spotify.com/v1/me/player/seek?position_ms="
 #define API_SHUFFLE "https://api.spotify.com/v1/me/player/shuffle?state="
 #define API_REPEAT "https://api.spotify.com/v1/me/player/repeat?state="
 
@@ -132,6 +133,12 @@ bool triggerPrevious() {
 
 bool triggerNext() {
   return triggerAction("Next", "POST", API_NEXT);
+}
+
+bool seekToPosition(int diff) {
+  long targetTime = player.trackPosition + diff;
+  if (targetTime < 0) targetTime = 0;
+  return triggerAction("Seek", "PUT", API_SEEK + String(targetTime));
 }
 
 bool toggleShuffleMode() {

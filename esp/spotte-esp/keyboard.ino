@@ -32,7 +32,7 @@ void handleShortPress(KeyboardState btn) {
             triggerPrevious();
             break;
           case ItemType::Episode:
-            // seek -15 seconds
+            seekToPosition(-15000);
             break;
         }
         forcePlayerUpdate();
@@ -43,7 +43,7 @@ void handleShortPress(KeyboardState btn) {
             triggerNext();
             break;
           case ItemType::Episode:
-            // seek +15 seconds
+            seekToPosition(15000);
             break;
         }
         forcePlayerUpdate();
