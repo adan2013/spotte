@@ -36,7 +36,9 @@ void renderDisplay() {
       break;
     case DeviceState::Player:
       if (player.trackLoaded) {
-        if (player.repeat) display.drawBitmap(73, 0, repeatModeIcon, 16, 16, SH110X_WHITE);
+        if (player.repeat != RepeatMode::Off) {
+          display.drawBitmap(73, 0, player.repeat == RepeatMode::RepeatAll ? repeatModeIcon : repeatOneModeIcon, 16, 16, SH110X_WHITE);
+        }
         if (player.shuffle) display.drawBitmap(93, 0, randomModeIcon, 16, 16, SH110X_WHITE);
         display.drawBitmap(113, 0, player.liked ? heartOnIcon : heartOffIcon, 16, 16, SH110X_WHITE);
         printToLeft(player.title.offset, 20, player.title.value);

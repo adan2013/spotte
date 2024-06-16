@@ -34,6 +34,12 @@ enum class DeviceState {
   Error,
 };
 
+enum class RepeatMode {
+  Off,
+  RepeatAll,
+  RepeatOne,
+};
+
 struct StorageStruct {
   bool configured;
   char ssid[40];
@@ -53,7 +59,7 @@ struct PlayerStruct {
   bool trackLoaded;
   ScrollableText title;
   ScrollableText artist;
-  bool repeat;
+  RepeatMode repeat;
   bool shuffle;
   bool liked;
   bool paused;

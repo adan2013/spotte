@@ -7,6 +7,16 @@ unsigned long lastAnimationUpdateTime = 0;
 unsigned long lastPlayerUpdateTime = 0;
 bool blinkAnimationFlag = false;
 
+float getTrackProgressBarValue() {
+  return float(player.trackPosition) / float(player.trackLength);
+}
+
+RepeatMode getRepeatModeState(String input) {
+  if (input == "track") return RepeatMode::RepeatOne;
+  if (input == "context") return RepeatMode::RepeatAll;
+  return RepeatMode::Off;
+}
+
 void resetPlayerState() {
   player.trackLoaded = false;
 }
@@ -28,13 +38,12 @@ void updatePlayerState(DynamicJsonDocument doc) {
       artist += artistObj["name"].as<String>();
     }
     player.shuffle = doc["shuffle_state"].as<bool>();
-    String rep = doc["repeat_state"].as<String>();
-    player.repeat = rep != "null" && rep != "off";
+    player.repeat = getRepeatModeState(doc["repeat_state"].as<String>());
   } else if (type == "episode") {
     title = item["name"].as<String>();
     artist = item["show"]["publisher"].as<String>();
     player.shuffle = false;
-    player.repeat = false;
+    player.repeat = RepeatMode::Off;
   }
 
   player.trackLoaded = true;
@@ -52,10 +61,6 @@ void updatePlayerState(DynamicJsonDocument doc) {
     player.title.offset = 0;
     player.artist.offset = 0;
   }
-}
-
-float getTrackProgressBarValue() {
-  return float(player.trackPosition) / float(player.trackLength);
 }
 
 void animatePlayerScreen() {
