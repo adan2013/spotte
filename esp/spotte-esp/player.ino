@@ -12,19 +12,36 @@ void resetPlayerState() {
 }
 
 void updatePlayerState(DynamicJsonDocument doc) {
+  String type = doc["currently_playing_type"].as<String>();
   JsonObject item = doc["item"];
-  String title = item["name"].as<String>();
-  
-  JsonArray artists = item["artists"];
+
+  String title = "";
   String artist = "";
-  for (JsonObject artistObj : artists) {
-    if (artist.length() > 0) {
-      artist += ", ";
+
+  if (type == "track") {
+    title = item["name"].as<String>();
+    JsonArray artists = item["artists"];
+    for (JsonObject artistObj : artists) {
+      if (artist.length() > 0) {
+        artist += ", ";
+      }
+      artist += artistObj["name"].as<String>();
     }
-    artist += artistObj["name"].as<String>();
+    player.shuffle = doc["shuffle_state"].as<bool>();
+    String rep = doc["repeat_state"].as<String>();
+    player.repeat = rep != "null" && rep != "off";
+  } else if (type == "episode") {
+    title = item["name"].as<String>();
+    artist = item["show"]["publisher"].as<String>();
+    player.shuffle = false;
+    player.repeat = false;
   }
 
   player.trackLoaded = true;
+  player.paused = !doc["is_playing"].as<bool>();
+  player.trackPosition = doc["progress_ms"].as<unsigned long>();
+  player.trackLength = item["duration_ms"].as<unsigned long>();
+
   char previousTitle[sizeof(player.title.value)];
   strcpy(previousTitle, player.title.value);
   title.toCharArray(player.title.value, 150);
@@ -35,13 +52,6 @@ void updatePlayerState(DynamicJsonDocument doc) {
     player.title.offset = 0;
     player.artist.offset = 0;
   }
-
-  player.trackPosition = doc["progress_ms"].as<long>();
-  player.trackLength = item["duration_ms"].as<long>();
-  player.paused = !doc["is_playing"].as<bool>();
-  player.shuffle = doc["shuffle_state"].as<bool>();
-  String rep = doc["repeat_state"].as<String>();
-  player.repeat = rep != "null" && rep != "off";
 }
 
 float getTrackProgressBarValue() {
@@ -71,7 +81,7 @@ void animatePlayerScreen() {
       player.title.offset = 0;
       player.artist.offset = 0;
     }
-    if (player.trackLoaded && !player.paused) {
+    if (player.trackLoaded && !player.paused && player.trackLength > 0) {
       player.trackPosition += deltaTime;
       if (player.trackPosition >= player.trackLength) {
         player.trackPosition = player.trackLength;

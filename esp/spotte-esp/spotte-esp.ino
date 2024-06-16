@@ -57,8 +57,8 @@ struct PlayerStruct {
   bool shuffle;
   bool liked;
   bool paused;
-  long trackPosition;
-  long trackLength;
+  unsigned long trackPosition;
+  unsigned long trackLength;
 };
 
 DeviceState state = DeviceState::Init;
@@ -81,6 +81,7 @@ bool checkTimer(unsigned long &timer, int interval, bool autoReset = true) {
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("Spott-E welcome!");
   initKeyboard();
   initScreen();
   loadConfigFromStorage();

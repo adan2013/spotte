@@ -1,5 +1,5 @@
 #define API_TOKEN "https://accounts.spotify.com/api/token"
-#define API_PLAYER "https://api.spotify.com/v1/me/player"
+#define API_PLAYER "https://api.spotify.com/v1/me/player?additional_types=episode"
 #define API_PLAY "https://api.spotify.com/v1/me/player/play"
 #define API_PAUSE "https://api.spotify.com/v1/me/player/pause"
 #define API_PREVIOUS "https://api.spotify.com/v1/me/player/previous"
