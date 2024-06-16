@@ -6,6 +6,7 @@
 #define API_NEXT "https://api.spotify.com/v1/me/player/next"
 
 bool networkRequired = false;
+String spotifyAccessToken;
 
 void connectToWiFi() {
   WiFi.disconnect();
@@ -94,35 +95,35 @@ bool updatePlayerState() {
   return false;
 }
 
-bool triggerPlayerAction(String endpoint, bool usePostMethod) {
+bool triggerAction(String operationName, const char *type, String endpoint) {
   HTTPClient http;
   http.begin(endpoint);
   http.addHeader("Content-Length", "0");
   http.addHeader("Authorization", "Bearer " + spotifyAccessToken);
-  int httpResponseCode = usePostMethod ? http.POST("") : http.PUT("");
-  if (httpResponseCode == 204) {
+  int httpResponseCode = http.sendRequest(type);
+  if (httpResponseCode == 200 || httpResponseCode == 204) {
     http.end();
     return true;
   } else if (httpResponseCode < 0) {
-    errorMsg = "Player action response code: " + String(httpResponseCode);
+    errorMsg = operationName + " response code: " + String(httpResponseCode);
   } else {
     String payload = http.getString();
-    errorMsg = "Player action response code: " + String(httpResponseCode) + "; Payload: " + payload;
+    errorMsg = operationName + " response code: " + String(httpResponseCode) + "; Payload: " + payload;
   }
 }
 
 bool triggerPlay() {
-  return triggerPlayerAction(API_PLAY, false);
+  return triggerAction("Play", "PUT", API_PLAY);
 }
 
 bool triggerPause() {
-  return triggerPlayerAction(API_PAUSE, false);
+  return triggerAction("Pause", "PUT", API_PAUSE);
 }
 
 bool triggerPrevious() {
-  return triggerPlayerAction(API_PREVIOUS, true);
+  return triggerAction("Previous", "POST", API_PREVIOUS);
 }
 
 bool triggerNext() {
-  return triggerPlayerAction(API_NEXT, true);
+  return triggerAction("Next", "POST", API_NEXT);
 }

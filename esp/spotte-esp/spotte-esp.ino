@@ -70,7 +70,6 @@ struct PlayerStruct {
 DeviceState state = DeviceState::Init;
 StorageStruct config;
 PlayerStruct player;
-String spotifyAccessToken;
 String errorMsg;
 
 void resetTimer(unsigned long &timer) {
