@@ -62,6 +62,7 @@ struct ScrollableText {
 
 struct PlayerStruct {
   bool trackLoaded;
+  String trackId;
   ItemType itemType;
   ScrollableText title;
   ScrollableText artist;

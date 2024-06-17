@@ -8,6 +8,8 @@
 #define API_SEEK "https://api.spotify.com/v1/me/player/seek?position_ms="
 #define API_SHUFFLE "https://api.spotify.com/v1/me/player/shuffle?state="
 #define API_REPEAT "https://api.spotify.com/v1/me/player/repeat?state="
+#define API_TRACK_CONTAINS "https://api.spotify.com/v1/me/tracks/contains?ids="
+#define API_EPISODE_CONTAINS "https://api.spotify.com/v1/me/episodes/contains?ids="
 
 bool monitorNetworkStatus = false;
 bool monitorAccessToken = false;
@@ -131,6 +133,7 @@ bool triggerAction(String operationName, const char *type, String endpoint) {
     http.end();
     switchState(DeviceState::Error);
   }
+  return false;
 }
 
 bool triggerPlay() {
@@ -174,4 +177,43 @@ bool toggleRepeatMode() {
       break;
   }
   return triggerAction("Toggle repeat", "PUT", API_REPEAT + newState);
+}
+
+bool checkIsItSaved() {
+  HTTPClient http;
+  String endpoint = "";
+  switch (player.itemType) {
+    case ItemType::Track:
+      endpoint = API_TRACK_CONTAINS + player.trackId;
+      break;
+    case ItemType::Episode:
+      endpoint = API_EPISODE_CONTAINS + player.trackId;
+      break;
+  }
+  http.begin(endpoint);
+  http.addHeader("Authorization", "Bearer " + spotifyAccessToken);
+  int httpResponseCode = http.GET();
+  if (httpResponseCode == 200) {
+    String payload = http.getString();
+    DynamicJsonDocument doc(1024);
+    DeserializationError error = deserializeJson(doc, payload);
+    if (error) {
+      errorMsg = "LibraryCheck JSON deserialization " + String(error.c_str());
+      switchState(DeviceState::Error);
+      return false;
+    }
+    bool isSaved = doc[0];
+    http.end();
+    return isSaved;
+  } else if (httpResponseCode < 0) {
+    errorMsg = "LibraryCheck response code: " + String(httpResponseCode);
+    http.end();
+    switchState(DeviceState::Error);
+  } else {
+    String payload = http.getString();
+    errorMsg = "LibraryCheck response code: " + String(httpResponseCode) + "; Payload: " + payload;
+    http.end();
+    switchState(DeviceState::Error);
+  }
+  return false;
 }

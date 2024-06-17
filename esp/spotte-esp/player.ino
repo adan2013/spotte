@@ -49,6 +49,7 @@ void updatePlayerState(DynamicJsonDocument doc) {
   }
 
   player.trackLoaded = true;
+  player.trackId = item["id"].as<String>();
   player.paused = !doc["is_playing"].as<bool>();
   player.trackPosition = doc["progress_ms"].as<unsigned long>();
   player.trackLength = item["duration_ms"].as<unsigned long>();
@@ -62,6 +63,7 @@ void updatePlayerState(DynamicJsonDocument doc) {
     player.artist.screenLength = getTextWidth(player.artist.value);
     player.title.offset = 0;
     player.artist.offset = 0;
+    player.liked = checkIsItSaved();
   }
 }
 
