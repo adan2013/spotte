@@ -8,7 +8,9 @@
 #define API_SEEK "https://api.spotify.com/v1/me/player/seek?position_ms="
 #define API_SHUFFLE "https://api.spotify.com/v1/me/player/shuffle?state="
 #define API_REPEAT "https://api.spotify.com/v1/me/player/repeat?state="
+#define API_TRACK_ADD_REMOVE "https://api.spotify.com/v1/me/tracks?ids="
 #define API_TRACK_CONTAINS "https://api.spotify.com/v1/me/tracks/contains?ids="
+#define API_EPISODE_ADD_REMOVE "https://api.spotify.com/v1/me/episodes?ids="
 #define API_EPISODE_CONTAINS "https://api.spotify.com/v1/me/episodes/contains?ids="
 
 bool monitorNetworkStatus = false;
@@ -177,6 +179,26 @@ bool toggleRepeatMode() {
       break;
   }
   return triggerAction("Toggle repeat", "PUT", API_REPEAT + newState);
+}
+
+bool toggleLikeState() {
+  if (player.trackLoaded) {
+    char method[7];
+    if (player.liked) {
+      strcpy(method, "DELETE");
+    } else {
+      strcpy(method, "PUT");
+    }
+    switch (player.itemType) {
+      case ItemType::Track:
+        return triggerAction("Toggle track", method, API_TRACK_ADD_REMOVE + player.trackId);
+        break;
+      case ItemType::Episode:
+        return triggerAction("Toggle episode", method, API_EPISODE_ADD_REMOVE + player.trackId);
+        break;
+    }
+  }
+  return false;
 }
 
 bool checkIsItSaved() {

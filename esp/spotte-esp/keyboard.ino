@@ -26,6 +26,11 @@ void handleShortPress(KeyboardState btn) {
         }
         forcePlayerUpdate();
       }
+      if (btn == KeyboardState::Like) {
+        if (toggleLikeState()) {
+          player.liked = !player.liked;
+        }
+      }
       if (btn == KeyboardState::Prev) {
         switch (player.itemType) {
           case ItemType::Track:
