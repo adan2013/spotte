@@ -1,7 +1,7 @@
 #define SCREEN_SCROLL_LIMIT 128
 #define ANIMATION_INTERVAL 1000
 #define SCROLL_STEP 10
-#define PLAYER_UPDATE_INTERVAL 3000
+#define PLAYER_UPDATE_INTERVAL 6000
 
 unsigned long lastAnimationUpdateTime = 0;
 unsigned long lastPlayerUpdateTime = 0;
@@ -110,4 +110,5 @@ void forcePlayerUpdate() {
 void initPlayerScreen() {
   lastAnimationUpdateTime = millis();
   lastPlayerUpdateTime = millis();
+  blinkAnimationFlag = false;
 }

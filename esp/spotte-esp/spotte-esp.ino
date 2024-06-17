@@ -83,6 +83,10 @@ void resetTimer(unsigned long &timer) {
 }
 
 bool checkTimer(unsigned long &timer, int interval, bool autoReset = true) {
+  if (timer == 0) {
+    resetTimer(timer);
+    return false;
+  }
   if (timer + interval <= millis()) {
     if (autoReset) resetTimer(timer);
     return true;
@@ -102,5 +106,6 @@ void loop() {
   processKeyboard();
   processApClients();
   monitorWiFiConnection();
+  keepAccessTokenValid();
   animatePlayerScreen();
 }

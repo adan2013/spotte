@@ -1,3 +1,4 @@
+#define TOKEN_REFRESH_INTERVAL 3500000
 #define API_TOKEN "https://accounts.spotify.com/api/token"
 #define API_PLAYER "https://api.spotify.com/v1/me/player?additional_types=episode"
 #define API_PLAY "https://api.spotify.com/v1/me/player/play"
@@ -8,27 +9,40 @@
 #define API_SHUFFLE "https://api.spotify.com/v1/me/player/shuffle?state="
 #define API_REPEAT "https://api.spotify.com/v1/me/player/repeat?state="
 
-bool networkRequired = false;
+bool monitorNetworkStatus = false;
+bool monitorAccessToken = false;
+unsigned long lastTokenRefreshTime;
 String spotifyAccessToken;
 
 void connectToWiFi() {
   WiFi.disconnect();
   WiFi.begin(config.ssid, config.password);
   while (WiFi.status() != WL_CONNECTED);
-  networkRequired = true;
+  monitorNetworkStatus = true;
   switchState(DeviceState::LoggingIn);
 }
 
 void monitorWiFiConnection() {
-  if (networkRequired) {
+  if (monitorNetworkStatus) {
     if (WiFi.status() != WL_CONNECTED) {
-      networkRequired = false;
+      monitorNetworkStatus = false;
       switchState(DeviceState::ConnectionLost);
     }
   }
 }
 
+void keepAccessTokenValid() {
+  if (monitorAccessToken) {
+    if (checkTimer(lastTokenRefreshTime, TOKEN_REFRESH_INTERVAL)) {
+      if(!refreshAccessToken()) {
+        switchState(DeviceState::Error);
+      }
+    }
+  }
+}
+
 bool refreshAccessToken() {
+  monitorAccessToken = true;
   HTTPClient http;
   String authHeader = String(config.clientId) + ":" + String(config.clientSecret);
   String base64AuthHeader = base64::encode(authHeader);
