@@ -88,16 +88,12 @@ void switchState(DeviceState newState) {
     case DeviceState::LoggingIn:
       if (refreshAccessToken()) {
         switchState(DeviceState::FetchingData);
-      } else {
-        switchState(DeviceState::Error);
       }
       break;
     case DeviceState::FetchingData:
       if (updatePlayerState()) {
         initPlayerScreen();
         switchState(DeviceState::Player);
-      } else {
-        switchState(DeviceState::Error);
       }
       break;
   }

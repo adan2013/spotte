@@ -38,11 +38,38 @@ void monitorWiFiConnection() {
 void keepAccessTokenValid() {
   if (monitorAccessToken) {
     if (checkTimer(lastTokenRefreshTime, TOKEN_REFRESH_INTERVAL)) {
-      if(!refreshAccessToken()) {
-        switchState(DeviceState::Error);
-      }
+      refreshAccessToken();
     }
   }
+}
+
+bool decodeResponse(const String name, HTTPClient &http, DynamicJsonDocument &doc) {
+  String payload = http.getString();
+  DeserializationError error = deserializeJson(doc, payload);
+  if (error) {
+    errorMsg = name + " deserialization error: " + String(error.c_str());
+    switchState(DeviceState::Error);
+    return false;
+  }
+  return true;
+}
+
+bool validateResponse(const String name, HTTPClient &http, int code, bool errorOnFail = true) {
+  if (code >= 200 && code < 300) {
+    return true;
+  } else if (code < 0) {
+    http.end();
+    if (errorOnFail) {
+      errorMsg = name + " call failed";
+      switchState(DeviceState::Error);
+    }
+  } else {
+    String payload = http.getString();
+    errorMsg = name + " response code " + code + "; Payload: " + payload;
+    http.end();
+    switchState(DeviceState::Error);
+  }
+  return false;
 }
 
 bool refreshAccessToken() {
@@ -57,32 +84,18 @@ bool refreshAccessToken() {
   http.addHeader("Authorization", "Basic " + base64AuthHeader);
   int httpResponseCode = http.POST(postData);
 
-  String payload = "";
-  if (httpResponseCode == 200) {
-
-    String payload = http.getString();
+  if (validateResponse("Token", http, httpResponseCode)) {
     DynamicJsonDocument doc(1024);
-    DeserializationError error = deserializeJson(doc, payload);
-
-    if (error) {
-      errorMsg = "Token JSON deserialization " + String(error.c_str());
-      return false;
+    if (decodeResponse("Token", http, doc)) {
+      spotifyAccessToken = doc["access_token"].as<String>();
+      Serial.println(spotifyAccessToken);
+      if (doc.containsKey("refresh_token")) {
+        saveNewRefreshToken(doc["refresh_token"].as<String>());
+      }
+      http.end();
+      return true;
     }
-
-    spotifyAccessToken = doc["access_token"].as<String>();
-    Serial.println(spotifyAccessToken);
-    if (doc.containsKey("refresh_token")) {
-      saveNewRefreshToken(doc["refresh_token"].as<String>());
-    }
-
-    return true;
-  } else if (httpResponseCode < 0) {
-    errorMsg = "Token response code: " + String(httpResponseCode);
-  } else {
-    String payload = http.getString();
-    errorMsg = "Token response code: " + String(httpResponseCode) + "; Payload: " + payload;
   }
-  http.end();
   return false;
 }
 
@@ -91,81 +104,70 @@ bool updatePlayerState() {
   http.begin(API_PLAYER);
   http.addHeader("Authorization", "Bearer " + spotifyAccessToken);
   int httpResponseCode = http.GET();
-  if (httpResponseCode == 200) {
-    String payload = http.getString();
-    DynamicJsonDocument doc(2048);
-    DeserializationError error = deserializeJson(doc, payload);
 
-    if (error) {
-      errorMsg = "Player state JSON deserialization " + String(error.c_str());
-      return false;
+  if (validateResponse("Player state", http, httpResponseCode, false)) {
+    if (httpResponseCode == 204) {
+      resetPlayerState();
+      http.end();
+      return true;
+    } else {
+      DynamicJsonDocument doc(2048);
+      if (decodeResponse("Player state", http, doc)) {
+        updatePlayerState(doc);
+        http.end();
+        return true;
+      }
     }
-
-    updatePlayerState(doc);
-    return true;
-  } else if (httpResponseCode == 204) {
-    resetPlayerState();
-    return true;
-  } else if (httpResponseCode < 0) {
-    errorMsg = "Player state response code: " + String(httpResponseCode);
-  } else {
-    String payload = http.getString();
-    errorMsg = "Player state response code: " + String(httpResponseCode) + "; Payload: " + payload;
   }
-  http.end();
   return false;
 }
 
-bool triggerAction(String operationName, const char *type, String endpoint) {
+bool triggerAction(const String operationName, const char *type, String endpoint) {
   HTTPClient http;
   http.begin(endpoint);
   http.addHeader("Content-Length", "0");
   http.addHeader("Authorization", "Bearer " + spotifyAccessToken);
   int httpResponseCode = http.sendRequest(type);
-  if (httpResponseCode == 200 || httpResponseCode == 204) {
-    http.end();
-    return true;
-  } else if (httpResponseCode < 0) {
-    errorMsg = operationName + " response code: " + String(httpResponseCode);
-    http.end();
-    switchState(DeviceState::Error);
-  } else {
-    String payload = http.getString();
-    errorMsg = operationName + " response code: " + String(httpResponseCode) + "; Payload: " + payload;
-    http.end();
-    switchState(DeviceState::Error);
-  }
-  return false;
+  bool result = validateResponse(operationName, http, httpResponseCode, false);
+  if (result) http.end();
+  return result;
 }
 
 bool triggerPlay() {
+  if (!player.trackLoaded) return false;
   return triggerAction("Play", "PUT", API_PLAY);
 }
 
 bool triggerPause() {
+  if (!player.trackLoaded) return false;
   return triggerAction("Pause", "PUT", API_PAUSE);
 }
 
 bool triggerPrevious() {
+  if (!player.trackLoaded) return false;
   return triggerAction("Previous", "POST", API_PREVIOUS);
 }
 
 bool triggerNext() {
+  if (!player.trackLoaded) return false;
   return triggerAction("Next", "POST", API_NEXT);
 }
 
 bool seekToPosition(int diff) {
+  if (!player.trackLoaded) return false;
   long targetTime = player.trackPosition + diff;
   if (targetTime < 0) targetTime = 0;
   return triggerAction("Seek", "PUT", API_SEEK + String(targetTime));
 }
 
 bool toggleShuffleMode() {
+  if (!player.trackLoaded) return false;
   String newState = player.shuffle ? "false" : "true";
   return triggerAction("Toggle shuffle", "PUT", API_SHUFFLE + newState);
 }
 
 bool toggleRepeatMode() {
+  if (!player.trackLoaded) return false;
   String newState = "";
   switch(player.repeat) {
     case RepeatMode::Off:
@@ -182,21 +184,20 @@ bool toggleRepeatMode() {
 }
 
 bool toggleLikeState() {
-  if (player.trackLoaded) {
-    char method[7];
-    if (player.liked) {
-      strcpy(method, "DELETE");
-    } else {
-      strcpy(method, "PUT");
-    }
-    switch (player.itemType) {
-      case ItemType::Track:
-        return triggerAction("Toggle track", method, API_TRACK_ADD_REMOVE + player.trackId);
-        break;
-      case ItemType::Episode:
-        return triggerAction("Toggle episode", method, API_EPISODE_ADD_REMOVE + player.trackId);
-        break;
-    }
+  if (!player.trackLoaded) return false;
+  char method[7];
+  if (player.liked) {
+    strcpy(method, "DELETE");
+  } else {
+    strcpy(method, "PUT");
+  }
+  switch (player.itemType) {
+    case ItemType::Track:
+      return triggerAction("Toggle track", method, API_TRACK_ADD_REMOVE + player.trackId);
+      break;
+    case ItemType::Episode:
+      return triggerAction("Toggle episode", method, API_EPISODE_ADD_REMOVE + player.trackId);
+      break;
   }
   return false;
 }
@@ -215,27 +216,13 @@ bool checkIsItSaved() {
   http.begin(endpoint);
   http.addHeader("Authorization", "Bearer " + spotifyAccessToken);
   int httpResponseCode = http.GET();
-  if (httpResponseCode == 200) {
-    String payload = http.getString();
+
+  if (validateResponse("Library check", http, httpResponseCode, false)) {
     DynamicJsonDocument doc(1024);
-    DeserializationError error = deserializeJson(doc, payload);
-    if (error) {
-      errorMsg = "LibraryCheck JSON deserialization " + String(error.c_str());
-      switchState(DeviceState::Error);
-      return false;
+    if (decodeResponse("Library check", http, doc)) {
+      http.end();
+      return doc[0];
     }
-    bool isSaved = doc[0];
-    http.end();
-    return isSaved;
-  } else if (httpResponseCode < 0) {
-    errorMsg = "LibraryCheck response code: " + String(httpResponseCode);
-    http.end();
-    switchState(DeviceState::Error);
-  } else {
-    String payload = http.getString();
-    errorMsg = "LibraryCheck response code: " + String(httpResponseCode) + "; Payload: " + payload;
-    http.end();
-    switchState(DeviceState::Error);
   }
   return false;
 }
